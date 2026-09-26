@@ -1,3 +1,4 @@
+const { v1: uuid } = require("uuid")
 const { ApolloServer } = require("@apollo/server")
 const { startStandaloneServer } = require("@apollo/server/standalone")
 
@@ -94,18 +95,111 @@ let books = [
 ]
 
 /*
-  you can remove the placeholder query once your first one has been implemented 
+  you can remove the placeholder query once your first one has been implemented
 */
 
-const typeDefs = `
+const typeDefs = /* GraphQL */ `
+  type Book {
+    title: String,
+    author: String,
+    published: Int,
+    id: String,
+    genres: [String]
+  }
+
+  type Author {
+    name: String,
+    born: Int,
+    bookCount: Int
+  }
+
   type Query {
-    dummy: Int
+    bookCount: Int
+    authorCount: Int,
+    allBooks(author: String, genre: String): [Book],
+    allAuthors: [Author]
+  }
+
+  type Mutation {
+    addBook(
+      title: String!
+      author: String!
+      published: Int!
+      genres: [String!]!
+    ): Book
+
+    editAuthor(
+      name: String!
+      setBornTo: Int!
+    ): Author
   }
 `
 
 const resolvers = {
   Query: {
-    dummy: () => 0,
+    bookCount: () => books.length,
+
+    authorCount: () => authors.length,
+
+    allBooks: (root, args) => {
+      let filteredBooks = books
+
+      if (args.author) {
+        filteredBooks = filteredBooks.filter(
+          book => book.author === args.author
+        )
+      }
+
+      if (args.genre) {
+        filteredBooks = filteredBooks.filter(
+          book => book.genres.includes(args.genre)
+        )
+      }
+
+      return filteredBooks
+    },
+
+    allAuthors: () => authors,
+  },
+
+  Author: {
+    bookCount: (author) =>
+      books.filter(book => book.author === author.name).length,
+  },
+
+  Mutation: {
+    addBook: (root, args) => {
+      const book = {
+        title: args.title,
+        author: args.author,
+        published: args.published,
+        genres: args.genres,
+        id: uuid(),
+      }
+
+      books.push(book)
+
+      if (!authors.find(author => author.name === args.author)) {
+        authors.push({
+          name: args.author,
+          id: uuid(),
+        })
+      }
+
+      return book
+    },
+
+    editAuthor: (root, args) => {
+      const author = authors.find(author => author.name === args.name)
+
+      if (!author) {
+        return null
+      }
+
+      author.born = args.setBornTo
+
+      return author
+    },
   },
 }
 
