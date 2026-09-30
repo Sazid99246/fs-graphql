@@ -1,0 +1,43 @@
+const { ApolloServer } = require('@apollo/server')
+const { startStandaloneServer } = require('@apollo/server/standalone')
+const jwt = require('jsonwebtoken')
+
+const typeDefs = require('./schema')
+const resolvers = require('./resolvers')
+
+const startServer = (port) => {
+  const server = new ApolloServer({
+    typeDefs,
+    resolvers,
+  })
+
+  startStandaloneServer(server, {
+    listen: { port },
+    context: async ({ req }) => {
+      const auth = req.headers.authorization
+
+      if (auth && auth.toLowerCase().startsWith('bearer ')) {
+        const token = auth.substring(7)
+
+        try {
+          const decodedToken = jwt.verify(
+            token,
+            process.env.JWT_SECRET
+          )
+
+          return {
+            currentUser: decodedToken,
+          }
+        } catch (error) {
+          return {}
+        }
+      }
+
+      return {}
+    },
+  }).then(({ url }) => {
+    console.log(`Server ready at ${url}`)
+  })
+}
+
+module.exports = startServer
