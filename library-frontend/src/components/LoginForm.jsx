@@ -49,7 +49,7 @@ const LoginForm = ({ show, setUser }) => {
 
       <form onSubmit={submit}>
         <div>
-          <label htmlFor='username>username</label>
+          <label htmlFor='username'>username</label>
           <input
             id='username'
             value={username}
