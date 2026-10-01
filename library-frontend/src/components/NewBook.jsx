@@ -16,7 +16,9 @@ const ADD_BOOK = gql`
       genres: $genres
     ) {
       title
-      author
+      author {
+        name
+      }
       published
       genres
     }
@@ -24,12 +26,15 @@ const ADD_BOOK = gql`
 `
 
 const ALL_BOOKS = gql`
-  query {
-    allBooks {
-      author
+  query AllBooks($genre: String) {
+    allBooks(genre: $genre) {
+      author {
+        name
+      }
       id
       published
       title
+      genres
     }
   }
 `
@@ -53,7 +58,7 @@ const NewBook = (props) => {
 
   const [addBook] = useMutation(ADD_BOOK, {
     refetchQueries: [
-      { query: ALL_BOOKS },
+      { query: ALL_BOOKS, variables: { genre: null } },
       { query: ALL_AUTHORS },
     ],
   })
