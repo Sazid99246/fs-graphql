@@ -1,3 +1,28 @@
+import { gql } from '@apollo/client'
+import { useQuery } from '@apollo/client/react'
+
+const ME = gql`
+  query {
+    me {
+      username
+      favoriteGenre
+    }
+  }
+`
+
+const BOOKS_BY_GENRE = gql`
+  query BooksByGenre($genre: String) {
+    allBooks(genre: $genre) {
+      title
+      author {
+        name
+      }
+      published
+      genres
+    }
+  }
+`
+
 const Recommendation = ({ show }) => {
   const meResult = useQuery(ME, {
     skip: !show,
@@ -55,3 +80,5 @@ const Recommendation = ({ show }) => {
     </div>
   )
 }
+
+export default Recommendation
