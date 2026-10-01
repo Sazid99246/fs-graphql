@@ -117,7 +117,7 @@ const Authors = (props) => {
               </label>
             </div>
 
-            <button type="submit">set birth year</button>
+            <button type="submit">update author</button>
           </form>
         </>
       )}
