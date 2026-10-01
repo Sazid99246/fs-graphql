@@ -14,8 +14,13 @@ const userSchema = new mongoose.Schema({
   },
   passwordHash: {
     type: String,
-    required: true,
   },
+})
+
+userSchema.pre('validate', async function () {
+  if (!this.passwordHash) {
+    this.passwordHash = await bcrypt.hash('secret', 10)
+  }
 })
 
 module.exports = mongoose.model('User', userSchema)
