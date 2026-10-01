@@ -10,7 +10,7 @@ const LOGIN = gql`
   }
 `
 
-const LoginForm = ({ show, setUser }) => {
+const LoginForm = ({ show, setUser, setPage }) => {
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState(null)
@@ -44,6 +44,7 @@ const LoginForm = ({ show, setUser }) => {
       setUsername('')
       setPassword('')
       setError(null)
+      setPage('authors')
     } catch (error) {
       setError('login failed')
     }

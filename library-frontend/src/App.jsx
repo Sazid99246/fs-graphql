@@ -47,6 +47,7 @@ const App = () => {
       <LoginForm
         show={page === 'login'}
         setUser={setUser}
+        setPage={setPage}
       />
 
       <Recommendation

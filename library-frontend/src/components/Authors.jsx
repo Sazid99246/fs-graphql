@@ -84,22 +84,13 @@ const Authors = (props) => {
 
       {props.user && (
         <>
-          <h2>set birth year</h2>
+          <h2>Set birthyear</h2>
           <form onSubmit={submit}>
             <div>
               <label>
                 name
-                <input
-                  value={name}
-                  onChange={({ target }) => setName(target.value)}
-                />
-              </label>
-            </div>
-
-            <div>
-              <label>
-                name
                 <select
+                  name='name'
                   value={name}
                   onChange={({ target }) => setName(target.value)}
                 >
@@ -111,6 +102,18 @@ const Authors = (props) => {
                     </option>
                   ))}
                 </select>
+              </label>
+            </div>
+
+            <div>
+              <label>
+                born
+                <input
+                  name="born"
+                  type="number"
+                  value={born}
+                  onChange={({ target }) => setBorn(target.value)}
+                />
               </label>
             </div>
 
