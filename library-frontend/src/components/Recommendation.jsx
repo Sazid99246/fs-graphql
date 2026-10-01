@@ -1,30 +1,7 @@
-import { gql } from '@apollo/client'
-import { useQuery } from '@apollo/client/react'
-
-const ME = gql`
-  query {
-    me {
-      username
-      favoriteGenre
-    }
-  }
-`
-
-const BOOKS_BY_GENRE = gql`
-  query BooksByGenre($genre: String) {
-    allBooks(genre: $genre) {
-      title
-      author {
-        name
-      }
-      published
-      genres
-    }
-  }
-`
-
 const Recommendation = ({ show }) => {
-  const meResult = useQuery(ME)
+  const meResult = useQuery(ME, {
+    skip: !show,
+  })
 
   const genre = meResult.data?.me?.favoriteGenre
 
@@ -32,7 +9,7 @@ const Recommendation = ({ show }) => {
     variables: {
       genre,
     },
-    skip: !genre,
+    skip: !show || !genre,
   })
 
   if (!show) {
@@ -56,11 +33,9 @@ const Recommendation = ({ show }) => {
   return (
     <div>
       <h2>recommendations</h2>
-
       <p>
         books in your favorite genre <strong>{genre}</strong>
       </p>
-
       <table>
         <tbody>
           <tr>
@@ -68,7 +43,6 @@ const Recommendation = ({ show }) => {
             <th>author</th>
             <th>published</th>
           </tr>
-
           {books.map((book) => (
             <tr key={book.title}>
               <td>{book.title}</td>
@@ -81,5 +55,3 @@ const Recommendation = ({ show }) => {
     </div>
   )
 }
-
-export default Recommendation
