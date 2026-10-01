@@ -13,6 +13,7 @@ const LOGIN = gql`
 const LoginForm = ({ show, setUser }) => {
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
+  const [error, setError] = useState(null)
 
   const [login] = useMutation(LOGIN)
 
@@ -23,30 +24,35 @@ const LoginForm = ({ show, setUser }) => {
   const submit = async (event) => {
     event.preventDefault()
 
-    const result = await login({
-      variables: {
+    try {
+      const result = await login({
+        variables: {
+          username,
+          password,
+        },
+      })
+
+      const token = result.data.login.value
+
+      localStorage.setItem('library-user-token', token)
+
+      setUser({
         username,
-        password,
-      },
-    })
+        token,
+      })
 
-    const token = result.data.login.value
-
-    localStorage.setItem('library-user-token', token)
-
-    setUser({
-      username,
-      token,
-    })
-
-    setUsername('')
-    setPassword('')
+      setUsername('')
+      setPassword('')
+      setError(null)
+    } catch (error) {
+      setError('login failed')
+    }
   }
 
   return (
     <div>
       <h2>login</h2>
-
+      {error && <div>{error}</div>}
       <form onSubmit={submit}>
         <div>
           <label htmlFor='username'>username</label>
