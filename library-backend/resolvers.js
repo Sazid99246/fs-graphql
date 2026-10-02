@@ -1,10 +1,13 @@
 const { GraphQLError } = require('graphql')
+const { PubSub } = require('graphql-subscriptions')
 const bcrypt = require('bcrypt')
 const jwt = require('jsonwebtoken')
 
 const Book = require('./models/book')
 const Author = require('./models/author')
 const User = require('./models/user')
+
+const pubsub = new PubSub()
 
 const resolvers = {
   Query: {
@@ -45,6 +48,12 @@ const resolvers = {
     },
   },
 
+  Subscription: {
+    bookAdded: {
+      subscribe: () => pubsub.asyncIterableIterator(['BOOK_ADDED']),
+    },
+  },
+
   Mutation: {
     addBook: async (root, args, context) => {
       if (!context.currentUser) {
@@ -69,7 +78,13 @@ const resolvers = {
             genres: args.genres,
         })
         await book.save()
-        return book.populate('author')
+        const populatedBook = await book.populate('author')
+
+        pubsub.publish('BOOK_ADDED', {
+          bookAdded: populatedBook,
+        })
+
+        return populatedBook
       } catch (error) {
           throw new GraphQLError(error.message, {
             extensions: {
