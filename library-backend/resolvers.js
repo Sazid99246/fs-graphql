@@ -30,7 +30,39 @@ const resolvers = {
       return await Book.find(query).populate('author')
     },
 
-    allAuthors: async () => await Author.find({}),
+    allAuthors: async () => {
+      return Author.aggregate([
+        {
+          $lookup: {
+            from: 'books',
+            let: { authorId: '$_id' },
+            pipeline: [
+              {
+                $match: {
+                  $expr: {
+                    $eq: ['$author', '$$authorId'],
+                  },
+                },
+              },
+              {
+                $count: 'count',
+              },
+            ],
+            as: 'bookCount',
+          },
+        },
+        {
+          $addFields: {
+            bookCount: {
+              $ifNull: [
+                { $arrayElemAt: ['$bookCount.count', 0] },
+                0,
+              ],
+            },
+          },
+        },
+      ])
+    },
     me: async (root, args, context) => {
       if (!context.currentUser) {
         return null
@@ -43,9 +75,7 @@ const resolvers = {
   Author: {
     id: (author) => author._id.toString(),
 
-    bookCount: async (author) => {
-      return Book.countDocuments({ author: author._id })
-    },
+    bookCount: (author) => author.bookCount,
   },
 
   Subscription: {
